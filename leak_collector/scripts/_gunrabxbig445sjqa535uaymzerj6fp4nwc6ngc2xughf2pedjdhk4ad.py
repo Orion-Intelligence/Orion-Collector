@@ -70,6 +70,8 @@ class _gunrabxbig445sjqa535uaymzerj6fp4nwc6ngc2xughf2pedjdhk4ad(leak_extractor_i
             page.wait_for_selector("#wrapper")
             main_page_html = page.content()
 
+            self.debug_html_content = main_page_html
+
             soup = BeautifulSoup(main_page_html, "html.parser")
             company_blocks = soup.select("div[style*='padding: 10px;']")
 
@@ -135,9 +137,6 @@ class _gunrabxbig445sjqa535uaymzerj6fp4nwc6ngc2xughf2pedjdhk4ad(leak_extractor_i
                     m_industry=title_data["industry"]
                 )
                 self.append_leak_data(card_data, entity_data)
-
-            with open("main_page.html", "w", encoding="utf-8") as f:
-                f.write(main_page_html)
 
         except Exception as e:
             print(f"An error occurred while parsing leak data: {e}")
