@@ -3,7 +3,7 @@ import redis
 import requests
 from playwright.async_api import Browser, BrowserContext
 
-from crawler.constants.constants import RAW_PATH_CONSTANTS
+from crawler.constants.constant import RAW_PATH_CONSTANTS
 
 
 def init_services():

@@ -4,7 +4,7 @@ import shutil
 import zipfile
 import requests
 import argostranslate.package
-from crawler.constants.constants import LANGUAGE_MODEL_PATH
+from crawler.constants.constant import LANGUAGE_MODEL_PATH
 
 RAW_DIR = "raw"
 MODEL_ZIP_NAME = "ru_en_model.zip"

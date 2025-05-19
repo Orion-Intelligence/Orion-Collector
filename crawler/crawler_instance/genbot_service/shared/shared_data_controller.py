@@ -1,6 +1,6 @@
 import requests
 
-from crawler.constants.constants import RAW_PATH_CONSTANTS
+from crawler.constants.constant import RAW_PATH_CONSTANTS
 
 
 class shared_data_controller:

@@ -2,3 +2,4 @@ LANGUAGE_MODEL_PATH = "https://drive.usercontent.google.com/download?id=1S20Mr4S
 
 class RAW_PATH_CONSTANTS:
   MICROSERVER = "http://trusted-micros-api:8010"
+  HREF_TIMEOUT = 345600

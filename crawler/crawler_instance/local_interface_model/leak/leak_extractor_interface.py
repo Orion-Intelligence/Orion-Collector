@@ -51,8 +51,16 @@ class leak_extractor_interface(ABC):
         pass
 
     @abstractmethod
-    def invoke_db(self, command: int, key: CUSTOM_SCRIPT_REDIS_KEYS, value):
-        """Interact with Redis using the given command, key, and value."""
+    def invoke_db(self, command: int, key: CUSTOM_SCRIPT_REDIS_KEYS, value, expiry: int = 60):
+        """
+        Interact with Redis using the given command, key, value, and optional expiry.
+
+        Parameters:
+            command (int): The Redis command enum.
+            key (CUSTOM_SCRIPT_REDIS_KEYS): The Redis key to operate on.
+            value: The value to set or use in the operation.
+            expiry (int, optional): Expiration time in seconds. Default is 60.
+        """
         pass
 
     @abstractmethod
