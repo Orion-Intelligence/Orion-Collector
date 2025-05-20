@@ -55,8 +55,8 @@ fi
 # Run setup.py and main.py if build -social is requested
 if [ "$1" == "build" ] && [ "$2" == "-social" ]; then
     export PYTHONPATH="$PROJECT_ROOT"
-    python "$SOCIAL_DIR/setup.py"
-    python "$SOCIAL_DIR/main.py"
+    nohup python "$SOCIAL_DIR/setup.py" > /dev/null 2>&1 &
+    nohup python "$SOCIAL_DIR/main.py" > /dev/null 2>&1 &
 fi
 
 deactivate
