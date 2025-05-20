@@ -1,5 +1,3 @@
-#!/bin/bash
-
 ENV_FILE=".env"
 
 modify_server() {
@@ -23,4 +21,8 @@ if [ "$PROD_VALUE" == "1" ]; then
 else
     LOCAL_IP=$(hostname -I | awk '{print $1}')
     modify_server "http://$LOCAL_IP:8080"
+fi
+
+if [ "$1" == "build" ] && [ "$2" == "-social" ]; then
+    python3 socialcollector/main.py
 fi
