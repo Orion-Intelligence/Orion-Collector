@@ -6,3 +6,4 @@ class RAW_PATH_CONSTANTS:
   MICROSERVER = "http://trusted-micros-api:8010"
   HREF_TIMEOUT = 345600
   LOG_DIRECTORY = os.path.join(os.getcwd(), 'logs')
+  SESSION_PATH = "session_data"
