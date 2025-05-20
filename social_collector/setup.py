@@ -49,12 +49,21 @@ class social_setup:
             import playwright.sync_api
             print("[INFO] Playwright is already installed.")
         except ImportError:
-            subprocess.run([sys.executable, "-m", "pip", "install", "playwright"], check=True)
+            subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "playwright"], check=True)
             print("[INFO] Installed Playwright via pip.")
 
-        print("[INFO] Installing Playwright browser binaries (firefox)...")
-        subprocess.run([sys.executable, "-m", "playwright", "install", "firefox"], check=True)
-        print("[INFO] Playwright Firefox installed.")
+        print("[INFO] Installing Playwright Firefox browser via Python module...")
+        try:
+            subprocess.run(
+                [sys.executable, "-m", "playwright", "install", "firefox"],
+                check=True,
+                env={**os.environ, "PLAYWRIGHT_BROWSERS_PATH": "0"}
+            )
+            print("[INFO] Playwright Firefox installed successfully.")
+        except subprocess.CalledProcessError as e:
+            print("[ERROR] Failed to install Playwright Firefox browser.")
+            print(f"[DETAILS] {e}")
+            sys.exit(1)
 
     def _ensure_raw_dir(self):
         os.makedirs(RAW_DIR, exist_ok=True)
