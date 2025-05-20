@@ -212,7 +212,7 @@ class RequestParser:
     return default_data_model, None
 
   def _launch_persistent_context(self, playwright):
-    user_data_dir = os.path.join(os.getcwd(), "session_data")
+    user_data_dir = os.path.join(os.getcwd(), "social_collector/session_data")
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
     os.makedirs(base_dir, exist_ok=True)
 

@@ -80,37 +80,40 @@ def check_orion_status_and_token():
 
 
 def reset_playwright_storage():
-    base_paths = ["raw/storage/permanent", "raw/storage/default"]
-    runtime_path = "session_data"
-    final_storage_target = os.path.join(runtime_path, "storage")
-    raw_storage_source = "raw/storage"
+    try:
+        root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../"))
+        base_paths = [os.path.join(root_dir, "raw/storage/permanent"), os.path.join(root_dir, "raw/storage/default")]
+        runtime_path = os.path.join(root_dir, "session_data")
+        final_storage_target = os.path.join(runtime_path, "storage")
+        raw_storage_source = os.path.join(root_dir, "raw/storage")
 
-    if os.path.exists(runtime_path):
-        shutil.rmtree(runtime_path)
+        if os.path.exists(runtime_path):
+            shutil.rmtree(runtime_path)
 
-    os.makedirs(runtime_path, exist_ok=True)
+        os.makedirs(runtime_path, exist_ok=True)
 
-    for base_path in base_paths:
-        if os.path.exists(base_path):
-            for item in os.listdir(base_path):
-                src = os.path.join(base_path, item)
-                dst = os.path.join(runtime_path, item)
-                if os.path.exists(dst):
-                    if os.path.isdir(dst):
-                        shutil.rmtree(dst)
+        for base_path in base_paths:
+            if os.path.exists(base_path):
+                for item in os.listdir(base_path):
+                    src = os.path.join(base_path, item)
+                    dst = os.path.join(runtime_path, item)
+                    if os.path.exists(dst):
+                        if os.path.isdir(dst):
+                            shutil.rmtree(dst)
+                        else:
+                            os.remove(dst)
+                    if os.path.isdir(src):
+                        shutil.copytree(src, dst)
                     else:
-                        os.remove(dst)
-                if os.path.isdir(src):
-                    shutil.copytree(src, dst)
-                else:
-                    shutil.copy2(src, dst)
+                        shutil.copy2(src, dst)
 
-    if os.path.exists(final_storage_target):
-        shutil.rmtree(final_storage_target)
+        if os.path.exists(final_storage_target):
+            shutil.rmtree(final_storage_target)
 
-    if os.path.exists(raw_storage_source):
-        shutil.copytree(raw_storage_source, final_storage_target)
-
+        if os.path.exists(raw_storage_source):
+            shutil.copytree(raw_storage_source, final_storage_target)
+    except Exception as ex:
+        print(ex, flush=True)
 
 def run_env_update_script():
     script_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
@@ -135,7 +138,9 @@ def parse_data(model):
         return {"error": f"Failed to connect to Orion NLP parse API: {str(ex)}"}
 
 def check_services_status():
-    check_tor_status()
+    proxy = env_handler.get_instance().env("S_PROXY") == "1"
+    if proxy:
+        check_tor_status()
     check_redis_status()
     check_orion_status_and_token()
 

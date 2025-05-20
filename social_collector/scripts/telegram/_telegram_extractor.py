@@ -1,7 +1,6 @@
 import time
 from abc import ABC
 from datetime import datetime, timedelta
-from time import sleep
 from typing import List
 from playwright.sync_api import Page
 from crawler.crawler_instance.local_interface_model.leak.telegram_extractor_interface import telegram_extractor_interface
@@ -11,7 +10,6 @@ from crawler.crawler_instance.local_shared_model.rule_model import RuleModel, Fe
 from crawler.crawler_services.redis_manager.redis_controller import redis_controller
 from crawler.crawler_services.redis_manager.redis_enums import REDIS_COMMANDS, CUSTOM_SCRIPT_REDIS_KEYS
 from crawler.crawler_services.shared.env_handler import env_handler
-from social_collector.local_client.helper.telegram.telegram_helper import reset_playwright_storage
 from social_collector.local_client.helper.telegram.telegram_message_helper import telegram_message_helper
 
 
