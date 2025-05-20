@@ -2,6 +2,7 @@ import os
 import sys
 import shutil
 import zipfile
+import subprocess
 import requests
 import argostranslate.package
 from crawler.constants.constant import LANGUAGE_MODEL_PATH
@@ -26,6 +27,7 @@ class social_setup:
 
     def _initialize(self):
         print("[INFO] Initializing Social Setup...")
+        self._install_dependencies()
         self._ensure_raw_dir()
         self._clean_old_zip()
         if self._is_model_folder_valid():
@@ -39,6 +41,20 @@ class social_setup:
 
     def load(self):
         pass
+
+    def _install_dependencies(self):
+        print("[INFO] Installing Python package dependencies...")
+
+        try:
+            import playwright.sync_api
+            print("[INFO] Playwright is already installed.")
+        except ImportError:
+            subprocess.run([sys.executable, "-m", "pip", "install", "playwright"], check=True)
+            print("[INFO] Installed Playwright via pip.")
+
+        print("[INFO] Installing Playwright browser binaries (chromium)...")
+        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
+        print("[INFO] Playwright Chromium installed.")
 
     def _ensure_raw_dir(self):
         os.makedirs(RAW_DIR, exist_ok=True)
