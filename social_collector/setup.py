@@ -52,9 +52,9 @@ class social_setup:
             subprocess.run([sys.executable, "-m", "pip", "install", "playwright"], check=True)
             print("[INFO] Installed Playwright via pip.")
 
-        print("[INFO] Installing Playwright browser binaries (chromium)...")
-        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
-        print("[INFO] Playwright Chromium installed.")
+        print("[INFO] Installing Playwright browser binaries (firefox)...")
+        subprocess.run([sys.executable, "-m", "playwright", "install", "firefox"], check=True)
+        print("[INFO] Playwright Firefox installed.")
 
     def _ensure_raw_dir(self):
         os.makedirs(RAW_DIR, exist_ok=True)
