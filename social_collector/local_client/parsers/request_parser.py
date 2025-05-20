@@ -12,11 +12,12 @@ from crawler.crawler_instance.local_interface_model.leak.telegram_extractor_inte
 from crawler.crawler_instance.local_shared_model.data_model.entity_model import entity_model
 from crawler.crawler_instance.local_shared_model.data_model.telegram_chat_model import ChatDataModel, telegram_chat_model
 from crawler.crawler_instance.local_shared_model.rule_model import FetchProxy
+from crawler.crawler_services.log_manager.log_controller import log
 from crawler.crawler_services.redis_manager.redis_controller import redis_controller
 from crawler.crawler_services.redis_manager.redis_enums import REDIS_COMMANDS
 from crawler.crawler_services.shared.env_handler import env_handler
 from crawler.crawler_services.shared.helper_method import helper_method
-from social_collector.local_client.helper.telegram.telegram_helper import parse_data
+from social_collector.local_client.helper.telegram.telegram_helper import parse_data, reset_playwright_storage
 
 
 class RequestParser:
@@ -112,9 +113,10 @@ class RequestParser:
           if value not in (None, "", [], {}):
             chat_dict[key] = value
 
-        chat_dict["m_ai_summary"] = helper_method.clean_summary(entity["m_summary"][0])
+        # chat_dict["m_ai_summary"] = helper_method.clean_summary(entity["m_summary"][0])
         merged_chat_data.append(chat_dict)
-        print("parsing : " + self.model.channel_name + " : " + str(chat.m_message_id))
+        log.g().s("parsing : " + self.model.channel_name + " : " + str(chat.m_message_id) + " : " + str(chat.m_channel_id) + " : " + str(chat.m_channel_url))
+        print("parsing : " + self.model.channel_name + " : " + str(chat.m_message_id) + " : " + str(chat.m_channel_id) + " : " + str(chat.m_channel_url))
 
       if len(merged_chat_data)==0:
         return
@@ -130,6 +132,9 @@ class RequestParser:
 
     except Exception as _:
       return False
+    finally:
+      self.model.card_data.clear()
+
 
   @staticmethod
   def _should_block_resource(route: Route) -> bool:
@@ -155,6 +160,7 @@ class RequestParser:
         pass
 
   def parse(self):
+    reset_playwright_storage()
     default_data_model = ChatDataModel(
       m_chat_data=[],
       m_network="telegram"

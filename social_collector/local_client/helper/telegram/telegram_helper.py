@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 import time
@@ -77,6 +78,40 @@ def check_orion_status_and_token():
         print(f"Token request setup failed. Details: {ex}")
         sys.exit(1)
 
+
+def reset_playwright_storage():
+    base_paths = ["raw/storage/permanent", "raw/storage/default"]
+    runtime_path = "session_data"
+    final_storage_target = os.path.join(runtime_path, "storage")
+    raw_storage_source = "raw/storage"
+
+    if os.path.exists(runtime_path):
+        shutil.rmtree(runtime_path)
+
+    os.makedirs(runtime_path, exist_ok=True)
+
+    for base_path in base_paths:
+        if os.path.exists(base_path):
+            for item in os.listdir(base_path):
+                src = os.path.join(base_path, item)
+                dst = os.path.join(runtime_path, item)
+                if os.path.exists(dst):
+                    if os.path.isdir(dst):
+                        shutil.rmtree(dst)
+                    else:
+                        os.remove(dst)
+                if os.path.isdir(src):
+                    shutil.copytree(src, dst)
+                else:
+                    shutil.copy2(src, dst)
+
+    if os.path.exists(final_storage_target):
+        shutil.rmtree(final_storage_target)
+
+    if os.path.exists(raw_storage_source):
+        shutil.copytree(raw_storage_source, final_storage_target)
+
+
 def run_env_update_script():
     script_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
     script_path = os.path.join(script_dir, "run.sh")
@@ -86,13 +121,13 @@ def run_env_update_script():
 def parse_data(model):
     try:
         production = env_handler.get_instance().env("PRODUCTION") == "1"
-        server_url = env_handler.get_instance().env("S_SERVER") if production else "http://localhost:8080"
-        url = f"{server_url}/api/nlp/parse/ai"
+        server_url = env_handler.get_instance().env("S_MICRO_SERVER") if production else "http://localhost:8010"
+        url = f"{server_url}/nlp/parse/"
 
         token = redis_controller().invoke_trigger(REDIS_COMMANDS.S_GET_STRING, ["bearertoken", None, None])
         headers = {"Authorization": f"Bearer {token}"} if token else {}
 
-        response = requests.post(url, json={"data": model}, headers=headers, timeout=10)
+        response = requests.post(url, json={"data": model}, headers=headers, timeout=30)
         response.raise_for_status()
         return response.json()
 
@@ -103,3 +138,4 @@ def check_services_status():
     check_tor_status()
     check_redis_status()
     check_orion_status_and_token()
+
