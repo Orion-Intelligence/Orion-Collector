@@ -216,7 +216,7 @@ class RequestParser:
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
     os.makedirs(base_dir, exist_ok=True)
 
-    launch_args = {"user_data_dir": user_data_dir, "headless": False, "viewport": None, "accept_downloads": True, "args": ["--start-maximized"],
+    launch_args = {"user_data_dir": user_data_dir, "headless": True, "viewport": None, "accept_downloads": True, "args": ["--start-maximized"],
                    "firefox_user_prefs": {"browser.download.folderList": 2, "browser.download.useDownloadDir": True, "browser.download.dir": base_dir,
                                           "browser.helperApps.neverAsk.saveToDisk": ",".join(
                                             ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp", "application/pdf", "application/zip", "application/octet-stream"]),
