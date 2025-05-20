@@ -76,7 +76,7 @@ class _imncrewwfkbjkhr2oylerfm5qtbzfphhmpcfag43xc2kfgvluqtlgoid(leak_extractor_i
 
         for card in card_blocks:
             title_tag = card.find("h3", class_="yellow-text")
-            m_title = title_tag.get_text(strip=True) if title_tag else ""
+            title = title_tag.get_text(strip=True) if title_tag else ""
 
             desc_tag = card.find("p")
             m_content = desc_tag.get_text(strip=True) if desc_tag else ""
@@ -101,10 +101,10 @@ class _imncrewwfkbjkhr2oylerfm5qtbzfphhmpcfag43xc2kfgvluqtlgoid(leak_extractor_i
                     image_urls.append(img_tag["src"])
 
             card_data = leak_model(
-                m_title=m_title,
+                m_title=title,
                 m_url=page.url,
                 m_base_url=self.base_url,
-                m_screenshot=helper_method.get_screenshot_base64(page,m_title,self.base_url),
+                m_screenshot="",
                 m_content=m_content,
                 m_network=helper_method.get_network_type(self.base_url),
                 m_important_content=important_content,
