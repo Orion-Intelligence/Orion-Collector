@@ -141,7 +141,7 @@ class _twniiyed6mydtbe64i5mdl56nihl7atfaqtpww6gqyaiohgc75apzpad(leak_extractor_i
                     m_title=title,
                     m_url=post_url,
                     m_base_url=self.base_url,
-                    m_screenshot=helper_method.get_screenshot_base64(page, title, self.base_url),
+                    m_screenshot="",
                     m_content=m_content,
                     m_network=helper_method.get_network_type(self.base_url),
                     m_important_content=description,
