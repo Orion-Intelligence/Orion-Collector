@@ -112,7 +112,7 @@ class _silentbgdghp3zeldwpumnwabglreql7jcffhx5vqkvtf2lshc4n5zid(leak_extractor_i
                 m_title=title,
                 m_url=page.url,
                 m_base_url=self.base_url,
-                m_screenshot=helper_method.get_screenshot_base64(page,title,self.base_url),
+                m_screenshot="",
                 m_content=m_content,
                 m_network=helper_method.get_network_type(self.base_url),
                 m_important_content=m_content,
