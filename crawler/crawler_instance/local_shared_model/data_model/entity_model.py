@@ -17,6 +17,10 @@ class entity_model(BaseModel):
   m_ip: Optional[List[str]] = None
   m_team: Optional[str] = None
   m_attacker: List[str] = []
+  m_type: List[str] = None
+  m_platform: List[str] = None
+  m_author: List[str] = None
+  m_code_snippet: str
 
   model_config = {
     "extra": "allow"

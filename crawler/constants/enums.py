@@ -13,6 +13,7 @@ VALID_CONTENT_TYPES = [
     "stolen",
     "drugs",
     "hacking",
+    "cve",
     "marketplaces",
     "cryptocurrency",
     "leaks",
