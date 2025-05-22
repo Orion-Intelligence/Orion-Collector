@@ -9,7 +9,7 @@ from crawler.crawler_services.redis_manager.redis_controller import redis_contro
 from crawler.crawler_services.redis_manager.redis_enums import REDIS_COMMANDS, CUSTOM_SCRIPT_REDIS_KEYS
 from crawler.crawler_services.shared.helper_method import helper_method
 from bs4 import BeautifulSoup
-
+import re
 
 class _githubdatabreaches(leak_extractor_interface, ABC):
     _instance = None
@@ -68,66 +68,85 @@ class _githubdatabreaches(leak_extractor_interface, ABC):
             self.callback()
 
     def parse_leak_data(self, page: Page):
-
         page.wait_for_selector('.react-directory-truncate a')
         soup = BeautifulSoup(page.content(), 'html.parser')
-        link_tags = soup.select('.react-directory-truncate a')
-        md_links = []
-        for link in link_tags:
-            href = link.get('href', '')
-            if href.endswith('.md') and '/blob/' in href:
-                md_links.append('https://github.com' + href)
+        md_links = [
+            'https://github.com' + link.get('href', '')
+            for link in soup.select('.react-directory-truncate a')
+            if link.get('href', '').endswith('.md') and '/blob/' in link.get('href', '')
+        ]
+        md_links = list(dict.fromkeys(md_links))
 
-        print(md_links)
 
-        for md_url in md_links:
+
+        for idx, md_url in enumerate(md_links, start=1):
             page.goto(md_url)
             page.wait_for_selector('article.markdown-body')
-            file_soup = BeautifulSoup(page.content(), 'html.parser')
-            article = file_soup.find('article', class_='markdown-body')
+            article = BeautifulSoup(page.content(), 'html.parser').find('article', class_='markdown-body')
             if not article:
                 continue
 
-            # Title (first h1)
             title = article.find('h1').get_text(strip=True) if article.find('h1') else ""
-            print(title)
-            # Description and Date
-            description = ""
-            date = ""
+
+
+
+            description, date = "", ""
             desc_h2 = article.find('h2', string=lambda s: s and 'Description' in s)
             if desc_h2:
-                p_date = desc_h2.find_next_sibling('p')
-                date = p_date.get_text(strip=True) if p_date else ""
-                p_desc = p_date.find_next_sibling('p') if p_date else None
-                description = p_desc.get_text(strip=True) if p_desc else ""
-            print(description)
+                section_texts = []
+                for sibling in desc_h2.find_parent().find_next_siblings():
+                    if sibling.name == 'h2' or (sibling.name == 'div' and sibling.find('h2')):
+                        break
+                    if sibling.name == 'p':
+                        section_texts.append(sibling.get_text(strip=True))
+                    elif sibling.name == 'ul':
+                        section_texts += [li.get_text(strip=True) for li in sibling.find_all('li')]
+                if section_texts:
+                    if re.search(
+                            r'(\d{4}-\d{2}-\d{2}|January|February|March|April|May|June|July|August|September|October|November|December)',
+                            section_texts[0], re.I):
+                        date = section_texts.pop(0)
+                    description = " ".join(section_texts)
 
-            # Breached Data
+
+
             breached_data = ""
             bd_h2 = article.find('h2', string=lambda s: s and 'Breached data' in s)
             if bd_h2:
-                p_bd = bd_h2.find_next_sibling('p')
-                breached_data = p_bd.get_text(strip=True) if p_bd else ""
-            print("Breached data",breached_data)
+                fields = []
+                for sibling in bd_h2.find_parent().find_next_siblings():
+                    if sibling.name and sibling.name.startswith('h'):
+                        break
+                    txt = (
+                        sibling.get_text(strip=True)
+                        if sibling.name == 'p'
+                        else ", ".join(li.get_text(strip=True) for li in sibling.find_all('li'))
+                        if sibling.name == 'ul'
+                        else ""
+                    )
+                    for item in re.split(r',\s*', re.split(r'\s*breach.*', txt, flags=re.I)[0]):
+                        if re.search(r'(address|password|username|phone|name|date|gender)', item, re.I):
+                            fields.append(item.strip())
+                breached_data = ", ".join(fields)
 
-            # Download Links
+
+
             download_links = []
             download_h2 = article.find('h2', string=lambda s: s and 'Free download Link' in s)
             if download_h2:
+                candidates = []
                 p_links = download_h2.find_next_sibling('p')
                 if p_links:
-                    for a in p_links.find_all('a', href=True):
-                        download_links.append(a['href'])
-                for a in download_h2.find_all_next('a', href=True):
-                    if a['href'].startswith('http'):
-                        download_links.append(a['href'])
-                    # Stop if we hit another heading
-                    if a.find_previous('h2') is not download_h2:
-                        break
-                download_links = list(dict.fromkeys(download_links))
-                print(download_links)
+                    candidates += [a['href'] for a in p_links.find_all('a', href=True)]
+                candidates += [
+                    a['href']
+                    for a in download_h2.find_all_next('a', href=True)
+                    if a.find_previous('h2') is download_h2
+                ]
+                download_links = list(dict.fromkeys(
+                    [link for link in candidates if 'github.com' not in link and link.startswith('http')]))
 
-            m_content = f"Date: {date}\nDescription: {description}\nBreached data: {breached_data}\nDownload links: {download_links}"
+            m_content = f"Title: {title} Date: {date} Description: {description} Breached data: {breached_data} Download links: {download_links}"
 
             card_data = leak_model(
                 m_title=title,
@@ -137,9 +156,9 @@ class _githubdatabreaches(leak_extractor_interface, ABC):
                 m_content=m_content,
                 m_network=helper_method.get_network_type(self.base_url),
                 m_important_content=description,
-                m_weblink=[],
                 m_dumplink=download_links,
                 m_content_type=["leaks"],
+                m_leak_date=helper_method.extract_and_convert_date(date)
             )
 
             entity_data = entity_model(
