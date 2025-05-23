@@ -58,7 +58,7 @@ class _githubdatabreaches(leak_extractor_interface, ABC):
         return self._redis_instance.invoke_trigger(command, [key + self.__class__.__name__, default_value, expiry])
 
     def contact_page(self) -> str:
-        return "https://www.iana.org/help/example-domains"
+        return "https://github.com/doormanBreach/DataBreaches"
 
     def append_leak_data(self, leak: leak_model, entity: entity_model):
 
