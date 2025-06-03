@@ -34,11 +34,11 @@ class _example(leak_extractor_interface, ABC):
 
     @property
     def seed_url(self) -> str:
-        return "https://example.com/"
+        return "http://direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd.onion/"
 
     @property
     def base_url(self) -> str:
-        return "https://example.com/"
+        return "http://direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd.onion/"
 
     @property
     def rule_config(self) -> RuleModel:
@@ -57,7 +57,7 @@ class _example(leak_extractor_interface, ABC):
         return self._redis_instance.invoke_trigger(command, [key + self.__class__.__name__, default_value, expiry])
 
     def contact_page(self) -> str:
-        return "https://www.iana.org/help/example-domains"
+        return "http://direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd.onion/contact.html"
 
     def append_leak_data(self, leak: leak_model, entity: entity_model):
 
