@@ -7,9 +7,9 @@ from crawler.crawler_instance.local_shared_model.data_model.leak_model import le
 from crawler.crawler_instance.local_shared_model.rule_model import RuleModel, FetchProxy, FetchConfig
 from crawler.crawler_services.redis_manager.redis_controller import redis_controller
 from crawler.crawler_services.shared.helper_method import helper_method
+from bs4 import BeautifulSoup
 
-
-class _example(leak_extractor_interface, ABC):
+class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_interface, ABC):
     _instance = None
 
     def __init__(self, callback=None):
@@ -28,7 +28,7 @@ class _example(leak_extractor_interface, ABC):
     def __new__(cls, callback=None):
 
         if cls._instance is None:
-            cls._instance = super(_example, cls).__new__(cls)
+            cls._instance = super(_direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
@@ -67,6 +67,18 @@ class _example(leak_extractor_interface, ABC):
             self.callback()
 
     def parse_leak_data(self, page: Page):
+        html = page.content()
+        soup = BeautifulSoup(html, "html.parser")
+
+        card_links = []
+        h2_tags = soup.find_all("h2")
+        for h2 in h2_tags:
+            a_tag = h2.find("a")
+            if a_tag and a_tag.get("href"):
+                href = a_tag.get("href")
+                full_url = self.base_url + href if not href.startswith("http") else href
+                card_links.append(full_url)
+        print(card_links)
 
         m_content = ""
 
