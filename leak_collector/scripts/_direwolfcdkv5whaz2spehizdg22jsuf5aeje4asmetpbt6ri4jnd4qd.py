@@ -72,65 +72,58 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
         page.wait_for_selector("h2", timeout=60000)
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
-        card_links = []
-        h2_tags = soup.find_all("h2")
 
-        for h2 in h2_tags:
-            a_tag = h2.find("a")
+        cards_info = []
+        for article_content in soup.find_all("div", class_="article-content"):
+            h2 = article_content.find("h2")
+            desc_tag = article_content.find("p")
+            a_tag = h2.find("a") if h2 else None
             if a_tag and a_tag.get("href"):
                 href = a_tag.get("href")
                 full_url = urljoin(self.base_url, href)
-                card_links.append(full_url)
+                description = desc_tag.get_text(strip=True) if desc_tag else ""
+                cards_info.append({
+                    "href": full_url,
+                    "description": description
+                })
 
-
-
-        for link in card_links:
+        for card in cards_info:
+            link = card["href"]
+            description_text = card["description"]
             page.goto(link, timeout=60000)
             html = page.content()
             self.soup = BeautifulSoup(html, "html.parser")
-
             m_content = ""
             dump_links = []
-            page_title = page.title()
-            page_url = page.url
 
             company_name = ""
-            office_website = ""
             country = ""
-            weblink = []
+            website = []
             industry = ""
             file_size = ""
-            date = ""
+            date_only = ""
 
             article_content = self.soup.find("div", class_="article-content")
             if article_content:
+                company_info_tag = article_content.find("p")
+                if company_info_tag:
+                    for strong_tag in company_info_tag.find_all("strong"):
+                        label = strong_tag.get_text(strip=True)
+                        if label == "Name:":
+                            company_name = strong_tag.next_sibling.strip()
+                        elif label == "Office Website:":
+                            link_tag = strong_tag.find_next("a")
+                            if link_tag:
+                                office_website = link_tag.get_text(strip=True)
+                                website.append(office_website)
+                        elif label == "Country:":
+                            country = strong_tag.next_sibling.strip()
+                        elif label == "Industry:":
+                            industry = strong_tag.next_sibling.strip()
+                        elif label == "File Size:":
+                            file_size = strong_tag.next_sibling.strip()
 
-                company_name_tag = article_content.find("p")
-                if company_name_tag:
-                    for element in company_name_tag.contents:
-                        if element.name == "strong":
-                            label = element.get_text(strip=True).replace(":", "")
-                            next_node = element.next_sibling
-
-                            if label == "Name":
-                                company_name = next_node.strip() if next_node else ""
-
-                            elif label == "Office Website":
-                                link_tag = element.find_next("a")
-                                office_website = link_tag.get("href") if link_tag else ""
-                                if office_website:
-                                    weblink.append(office_website)
-
-                            elif label == "Country":
-                                country = next_node.strip() if next_node else ""
-
-                            elif label == "Industry":
-                                industry = next_node.strip() if next_node else ""
-
-                            elif label == "File Size":
-                                file_size = next_node.strip() if next_node else ""
-
-                                
+                import re
 
                 info_disclosure_section = article_content.find("h1", string="Information disclosure process")
                 if info_disclosure_section:
@@ -138,12 +131,17 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                     if ul_tag:
                         date_items = ul_tag.find_all("li")
                         if date_items:
-                            date_text = date_items[0].get_text()
-                            date = date_text.split()[0] if date_text else ""
+                            for idx, item in enumerate(date_items):
+                                raw_text = item.get_text(strip=True)
 
-                        m_content += "\nInformation disclosure process:\n"
-                        for item in date_items:
-                            m_content += "- " + item.get_text(strip=True) + "\n"
+                                match = re.search(r"\d{4}/\d{1,2}/\d{1,2}", raw_text)
+                                if match:
+                                    date_only = match.group()
+                                else:
+                                    print(f"No valid date found at index {idx}")
+
+                        info_items = [item.get_text(strip=True) for item in date_items]
+                        m_content += "Information disclosure process: " + ', '.join(info_items)
 
                 files_section = article_content.find("h1", string="What files did we get")
                 if files_section:
@@ -151,7 +149,7 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                     if files_ul:
                         m_content += "\nWhat files did we get:\n"
                         for li in files_ul.find_all("li"):
-                            m_content += "- " + li.get_text(strip=True) + "\n"
+                            m_content += "- " + li.get_text(strip=True)
 
 
 
@@ -167,26 +165,25 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                                     href = self.base_url.rstrip("/") + href
                                 dump_links.append(href)
 
-                            text_content = li.get_text(separator=" ", strip=True)
+                            text_content = li.get_text(strip=True)
                             urls_in_text = re.findall(r'(https?://[^\s<>"]+)', text_content)
                             for url in urls_in_text:
                                 if url not in dump_links:
                                     dump_links.append(url)
 
             card_data = leak_model(
-                m_title=page_title,
-                m_url=page_url,
+                m_title=page.title(),
+                m_url=page.url,
                 m_base_url=self.base_url,
                 m_screenshot="",
                 m_content=m_content,
                 m_network=helper_method.get_network_type(self.base_url),
-                m_important_content=m_content,
-                m_weblink=[],
+                m_important_content=description_text,
                 m_dumplink=dump_links,
                 m_content_type=["leaks"],
                 m_data_size=file_size,
-                m_weblinks=weblink if weblink else [],
-                m_leak_date=helper_method.extract_and_convert_date(date)
+                m_weblink=website if website else [],
+                m_leak_date=helper_method.extract_and_convert_date(date_only)
 
             )
 
