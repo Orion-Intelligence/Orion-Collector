@@ -73,35 +73,47 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
 
+
         cards_info = []
         for article_content in soup.find_all("div", class_="article-content"):
             h2 = article_content.find("h2")
             desc_tag = article_content.find("p")
             a_tag = h2.find("a") if h2 else None
+
+            meta_tag = article_content.find("div", class_="article-meta")
+            date_str = ""
+            if meta_tag:
+                date_span = meta_tag.find("span", class_="date")
+                if date_span:
+                    date_str = date_span.get_text(strip=True)
+
             if a_tag and a_tag.get("href"):
                 href = a_tag.get("href")
                 full_url = urljoin(self.base_url, href)
                 description = desc_tag.get_text(strip=True) if desc_tag else ""
+
                 cards_info.append({
                     "href": full_url,
-                    "description": description
+                    "description": description,
+                    "date": date_str
                 })
 
         for card in cards_info:
             link = card["href"]
             description_text = card["description"]
+            date=card["date"]
+
             page.goto(link, timeout=60000)
             html = page.content()
             self.soup = BeautifulSoup(html, "html.parser")
+
             m_content = ""
             dump_links = []
-
             company_name = ""
             country = ""
             website = []
             industry = ""
             file_size = ""
-            date_only = ""
 
             article_content = self.soup.find("div", class_="article-content")
             if article_content:
@@ -123,25 +135,13 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                         elif label == "File Size:":
                             file_size = strong_tag.next_sibling.strip()
 
-                import re
-
                 info_disclosure_section = article_content.find("h1", string="Information disclosure process")
                 if info_disclosure_section:
                     ul_tag = info_disclosure_section.find_next("ul")
                     if ul_tag:
-                        date_items = ul_tag.find_all("li")
-                        if date_items:
-                            for idx, item in enumerate(date_items):
-                                raw_text = item.get_text(strip=True)
-
-                                match = re.search(r"\d{4}/\d{1,2}/\d{1,2}", raw_text)
-                                if match:
-                                    date_only = match.group()
-                                else:
-                                    print(f"No valid date found at index {idx}")
-
-                        info_items = [item.get_text(strip=True) for item in date_items]
+                        info_items = [item.get_text(strip=True) for item in ul_tag.find_all("li")]
                         m_content += "Information disclosure process: " + ', '.join(info_items)
+
 
                 files_section = article_content.find("h1", string="What files did we get")
                 if files_section:
@@ -183,7 +183,7 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                 m_content_type=["leaks"],
                 m_data_size=file_size,
                 m_weblink=website if website else [],
-                m_leak_date=helper_method.extract_and_convert_date(date_only)
+                m_leak_date=helper_method.extract_and_convert_date(date)
 
             )
 
