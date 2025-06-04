@@ -9,7 +9,7 @@ from crawler.crawler_services.redis_manager.redis_controller import redis_contro
 from crawler.crawler_services.shared.helper_method import helper_method
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
-
+import re
 class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_interface, ABC):
     _instance = None
 
@@ -69,24 +69,20 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
 
     def parse_leak_data(self, page: Page):
 
-        page.wait_for_selector("h2", timeout=60000)  # waits up to 60 seconds
-
+        page.wait_for_selector("h2", timeout=60000)
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
-
         card_links = []
         h2_tags = soup.find_all("h2")
-        print(f"Found {len(h2_tags)} <h2> tags.")
 
         for h2 in h2_tags:
             a_tag = h2.find("a")
             if a_tag and a_tag.get("href"):
                 href = a_tag.get("href")
-                # Use urljoin to join base_url and href correctly
                 full_url = urljoin(self.base_url, href)
-                print(f"Found card link: {full_url}")
                 card_links.append(full_url)
-        print(card_links)
+
+
 
         for link in card_links:
             page.goto(link, timeout=60000)
@@ -102,7 +98,6 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
             office_website = ""
             country = ""
             weblink = []
-
             industry = ""
             file_size = ""
             date = ""
@@ -112,22 +107,30 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
 
                 company_name_tag = article_content.find("p")
                 if company_name_tag:
-                    content_text = company_name_tag.get_text(separator="\n", strip=True)
-                    lines = content_text.split("\n")
-                    for line in lines:
-                        if "Name:" in line:
-                            company_name = line.replace("Name:", "").strip()
-                        elif "Office Website:" in line:
-                            link_tag = company_name_tag.find("a")
-                            office_website = link_tag.get("href") if link_tag else ""
-                            if office_website:
-                                weblink.append(office_website)
-                        elif "Country:" in line:
-                            country = line.replace("Country:", "").strip()
-                        elif "Industry:" in line:
-                            industry = line.replace("Industry:", "").strip()
-                        elif "File Size:" in line:
-                            file_size = line.replace("File Size:", "").strip()
+                    for element in company_name_tag.contents:
+                        if element.name == "strong":
+                            label = element.get_text(strip=True).replace(":", "")
+                            next_node = element.next_sibling
+
+                            if label == "Name":
+                                company_name = next_node.strip() if next_node else ""
+
+                            elif label == "Office Website":
+                                link_tag = element.find_next("a")
+                                office_website = link_tag.get("href") if link_tag else ""
+                                if office_website:
+                                    weblink.append(office_website)
+
+                            elif label == "Country":
+                                country = next_node.strip() if next_node else ""
+
+                            elif label == "Industry":
+                                industry = next_node.strip() if next_node else ""
+
+                            elif label == "File Size":
+                                file_size = next_node.strip() if next_node else ""
+
+                                
 
                 info_disclosure_section = article_content.find("h1", string="Information disclosure process")
                 if info_disclosure_section:
@@ -150,6 +153,8 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                         for li in files_ul.find_all("li"):
                             m_content += "- " + li.get_text(strip=True) + "\n"
 
+
+
                 address_section = article_content.find("h1", string="Information disclosure address")
                 if address_section:
                     address_ul = address_section.find_next("ul")
@@ -161,8 +166,12 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                                 if href.startswith("/"):
                                     href = self.base_url.rstrip("/") + href
                                 dump_links.append(href)
-                            elif "https://mega.nz" in li.get_text():
-                                dump_links.append(li.get_text(strip=True))
+
+                            text_content = li.get_text(separator=" ", strip=True)
+                            urls_in_text = re.findall(r'(https?://[^\s<>"]+)', text_content)
+                            for url in urls_in_text:
+                                if url not in dump_links:
+                                    dump_links.append(url)
 
             card_data = leak_model(
                 m_title=page_title,
@@ -177,6 +186,7 @@ class _direwolfcdkv5whaz2spehizdg22jsuf5aeje4asmetpbt6ri4jnd4qd(leak_extractor_i
                 m_content_type=["leaks"],
                 m_data_size=file_size,
                 m_weblinks=weblink if weblink else [],
+                m_leak_date=helper_method.extract_and_convert_date(date)
 
             )
 
