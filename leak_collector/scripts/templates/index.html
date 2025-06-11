@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Link Status Checker</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            padding: 30px 40px;
+        }
+        h1 {
+            text-align: center;
+            color: #2a3b4c;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        input[type=text], select {
+            width: 100%;
+            padding: 9px 8px;
+            margin: 7px 0 18px 0;
+            border: 1px solid #bbb;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        button {
+            background: #2274a5;
+            color: #fff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 9px;
+            margin-bottom: 18px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #176092;
+        }
+        .summary {
+            background: #e8f6ef;
+            border: 1px solid #b1e5d5;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 22px;
+            color: #21755a;
+        }
+        .links-block {
+            margin-bottom: 28px;
+        }
+        .up { color: #23b04a; }
+        .down { color: #d13a3a; }
+        .download-btn {
+            background: #444;
+            color: #fff;
+            padding: 7px 18px;
+            border-radius: 4px;
+            font-size: 13px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .download-btn:hover {
+            background: #2274a5;
+        }
+        .error {
+            color: #d13a3a;
+            margin-bottom: 18px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .link-list li, .link-list a {
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            max-width: 100%;
+            display: block;
+        }
+        .footer {
+            text-align: center;
+            color: #888;
+            margin-top: 35px;
+            font-size: 15px;
+        }
+        .footer .love {
+            color: #e25555;
+            font-size: 17px;
+            vertical-align: middle;
+        }
+        #loading-overlay {
+            position: fixed;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            background: rgba(255,255,255,0.85);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            display: none;
+        }
+        .spinner {
+            border: 7px solid #f3f3f3;
+            border-top: 7px solid #2274a5;
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+        }
+        .loading-text {
+            font-size: 18px;
+            color: #2274a5;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 18px 7px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Link Status Checker</h1>
+        <form method="POST">
+            <label for="url">Page URL:</label>
+            <input type="text" name="url" id="url" value="{{ url or '' }}" required />
+            <label for="div_class">Div Class Name:</label>
+            <input type="text" name="div_class" id="div_class" value="{{ div_class or '' }}" required />
+            <label for="timeout">Timeout (seconds):</label>
+            <select name="timeout" id="timeout" required>
+                {% for sec in range(4, 11) %}
+                    <option value="{{ sec }}" {% if timeout|int == sec %}selected{% endif %}>{{ sec }} seconds</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Check Links</button>
+        </form>
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        {% if summary.total > 0 %}
+            <div class="summary">
+                <b>Summary:</b> Total Links: {{ summary.total }} |
+                <span class="up">Online: {{ summary.up_count }}</span> |
+                <span class="down">Offline: {{ summary.down_count }}</span>
+            </div>
+        {% endif %}
+
+        {% if up_links %}
+            <div class="links-block">
+                <h2 class="up">Up Links ({{ up_links|length }})</h2>
+                <ul class="link-list">
+                    {% for link in up_links %}
+                        <li><a href="{{ link }}" target="_blank">{{ link }}</a></li>
+                    {% endfor %}
+                </ul>
+                <form method="get" action="/download/up">
+                    {% for link in up_links %}
+                        <input type="hidden" name="links" value="{{ link }}">
+                    {% endfor %}
+                    <button type="submit" class="download-btn">Download Up Links as CSV</button>
+                </form>
+            </div>
+        {% endif %}
+
+        {% if down_links %}
+            <div class="links-block">
+                <h2 class="down">Down Links ({{ down_links|length }})</h2>
+                <ul class="link-list">
+                    {% for link in down_links %}
+                        <li>{{ link }}</li>
+                    {% endfor %}
+                </ul>
+                <form method="get" action="/download/down">
+                    {% for link in down_links %}
+                        <input type="hidden" name="links" value="{{ link }}">
+                    {% endfor %}
+                    <button type="submit" class="download-btn">Download Down Links as CSV</button>
+                </form>
+            </div>
+        {% endif %}
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Checking links, please wait...</div>
+        </div>
+    </div>
+    <div class="footer">
+        Made with <span class="love">♥</span> by syed ibrahim
+    </div>
+    <script>
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('loading-overlay').style.display = 'flex';
+    });
+    </script>
+</body>
+</html>
