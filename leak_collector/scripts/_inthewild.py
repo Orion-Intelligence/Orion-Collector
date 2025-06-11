@@ -154,7 +154,7 @@ class _inthewild(leak_extractor_interface, ABC):
                 m_network=helper_method.get_network_type(self.base_url),
                 m_leak_date=datetime.strptime(last_update_date, '%m/%d/%Y').date(),
                 m_websites=[website] if website else [],
-                m_content_type=["leaks"],
+                m_content_type=["cve"],
               )
 
               entity_data = entity_model(
