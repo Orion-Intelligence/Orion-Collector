@@ -66,8 +66,8 @@ class RequestParser:
         try:
           page = context.new_page()
 
-          # if self.model.rule_config.m_resoource_block:
-          #   page.route("**/*", self._handle_route)
+          if self.model.rule_config.m_resoource_block:
+            page.route("**/*", self._handle_route)
 
           page.goto(self.model.seed_url, wait_until="load")
 

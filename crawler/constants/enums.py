@@ -26,7 +26,7 @@ VALID_CONTENT_TYPES = [
     "counterfeit",
     "malware",
     "botnets",
-    "exploits",
+    "exploit_collector",
     "spam",
     "chemicals",
     "weapons",
