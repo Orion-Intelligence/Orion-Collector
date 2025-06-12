@@ -22,6 +22,7 @@ class entity_model(BaseModel):
     m_remote_type: Optional[List[str]] = []
     m_cve: Optional[List[str]] = []
     m_cwe: Optional[List[str]] = []
+    m_confidence: List[str]
 
     model_config = {
         "extra": "allow"
