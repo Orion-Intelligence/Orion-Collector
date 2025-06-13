@@ -73,6 +73,7 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
             self.callback()
 
     def parse_leak_data(self, page: Page):
+        page.wait_for_load_state("networkidle")
         index = 0
         while True:
             containers = page.query_selector_all("div[class*='h-[142px]'][class*='flex-col']")
@@ -80,7 +81,7 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
                 break
 
             try:
-                
+
                 read_more_link = containers[index].query_selector("a[class*='h-[50px]']")
                 index += 1
 
@@ -159,6 +160,8 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
                 )
 
                 entity_data = entity_model(
+                    m_email=helper_method.extract_emails(m_content),
+                    m_phone_numbers=helper_method.extract_phone_numbers(m_content),
 
                     m_company_name=title,
                     m_confidence=["high"],
