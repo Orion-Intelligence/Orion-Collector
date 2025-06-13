@@ -34,11 +34,11 @@ class _tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid(leak_extractor_i
 
     @property
     def seed_url(self) -> str:
-        return "tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid"
+        return "http://tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid.onion/"
 
     @property
     def base_url(self) -> str:
-        return "tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid"
+        return "http://tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid.onion/"
 
     @property
     def rule_config(self) -> RuleModel:
@@ -67,6 +67,8 @@ class _tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid(leak_extractor_i
             self.callback()
 
     def parse_leak_data(self, page: Page):
+
+        page.wait_for_load_state('networkidle')
         cards = page.query_selector_all('div.center1')
 
         for card in cards:
@@ -150,5 +152,4 @@ class _tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid(leak_extractor_i
                 m_country_name=country
             )
 
-            # Append data for this card
             self.append_leak_data(card_data, entity_data)
