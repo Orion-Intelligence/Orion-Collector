@@ -92,9 +92,9 @@ class _tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid(leak_extractor_i
                 if date_match:
                     date = date_match.group(1)
 
-                country_match = re.search(r'place</i>([A-Z]{2})', card.inner_html())
+                country_match = re.search(r'place</i>([^<]+?)(?=<br>|$)', card.inner_html())
                 if country_match:
-                    country = country_match.group(1)
+                    country = country_match.group(1).strip()
 
                 weblink_match = re.search(r'<i class="fa fa-chain"></i>([^\s<]+)', card.inner_html())
                 if weblink_match:
@@ -130,13 +130,20 @@ class _tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid(leak_extractor_i
                     link_text = download_link.inner_text().strip()
                     if href and (link_text == 'Read more' or link_text == 'Download The Files'):
                         dumps = href
+            content = (
+                f"Title: {title or 'Not available'}\n"
+                f"Description: {description or 'Not available'}\n"
+                f"Location: {country or 'Not available'}\n"
+                f"Date: {date}\n"
+                f"Website: {weblink or 'Not available'}"
+            )
 
             card_data = leak_model(
                 m_title=title,
                 m_url=page.url,
                 m_base_url=self.base_url,
                 m_screenshot="",
-                m_content=description,
+                m_content=content,
                 m_network=helper_method.get_network_type(self.base_url),
                 m_important_content=description,
                 m_weblink=[weblink] if weblink else [],
