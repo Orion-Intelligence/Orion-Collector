@@ -131,13 +131,12 @@ class _tp5cwh6d2b5hekcg6jlhoe6mawa7dlwiv47epvnfmzuaaur2dnaa3uid(leak_extractor_i
                     if href and (link_text == 'Read more' or link_text == 'Download The Files'):
                         dumps = href
             content = (
-                f"Title: {title or 'Not available'}\n"
-                f"Description: {description or 'Not available'}\n"
-                f"Location: {country or 'Not available'}\n"
-                f"Date: {date}\n"
+                f"Title: {title or 'Not available'}"
+                f"Description: {description or 'Not available'}"
+                f"Location: {country or 'Not available'}"
+                f"Date: {date}"
                 f"Website: {weblink or 'Not available'}"
             )
-
             card_data = leak_model(
                 m_title=title,
                 m_url=page.url,
