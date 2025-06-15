@@ -1,5 +1,6 @@
-from pydantic import BaseModel
 from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class entity_model(BaseModel):
@@ -22,7 +23,7 @@ class entity_model(BaseModel):
     m_remote_type: Optional[List[str]] = []
     m_cve: Optional[List[str]] = []
     m_cwe: Optional[List[str]] = []
-    m_confidence: List[str]
+    m_confidence: Optional[List[str]] = []
 
     model_config = {
         "extra": "allow"

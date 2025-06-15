@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import List
+
 from playwright.async_api import Page
 
+from crawler.crawler_instance.local_interface_model.leak.model.leak_data_model import leak_data_model
 from crawler.crawler_instance.local_shared_model.data_model.entity_model import entity_model
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model
-from crawler.crawler_instance.local_interface_model.leak.model.leak_data_model import leak_data_model
 from crawler.crawler_instance.local_shared_model.data_model.telegram_chat_model import telegram_chat_model
 from crawler.crawler_instance.local_shared_model.rule_model import RuleModel
-from crawler.crawler_services.redis_manager.redis_enums import REDIS_COMMANDS, CUSTOM_SCRIPT_REDIS_KEYS
+from crawler.crawler_services.redis_manager.redis_enums import CUSTOM_SCRIPT_REDIS_KEYS
 
 
 class telegram_interface(ABC):

@@ -1,7 +1,10 @@
-from pydantic import BaseModel, Field, field_validator, model_validator
 from datetime import date, datetime
 from typing import List, Optional
+
+from pydantic import BaseModel, Field, field_validator, model_validator
+
 from crawler.constants.enums import VALID_NETWORK_TYPES, VALID_CONTENT_TYPES
+
 
 class leak_model(BaseModel):
     m_ref_html: Optional[str] = None
@@ -39,13 +42,15 @@ class leak_model(BaseModel):
                 raise ValueError(f"The field '{field_name}' is required and cannot be None.")
 
         if self.m_network not in VALID_NETWORK_TYPES:
-            raise ValueError(f"Invalid network type provided: {self.m_network}. Must be one of {', '.join(VALID_NETWORK_TYPES)}.")
+            raise ValueError(
+                f"Invalid network type provided: {self.m_network}. Must be one of {', '.join(VALID_NETWORK_TYPES)}.")
 
         if not isinstance(self.m_content_type, list):
             raise ValueError("m_content_type must be a list of valid content types.")
 
         if not all(content in VALID_CONTENT_TYPES for content in self.m_content_type):
-            raise ValueError(f"Invalid content type(s) provided: {self.m_content_type}. Must be a subset of {', '.join(VALID_CONTENT_TYPES)}.")
+            raise ValueError(
+                f"Invalid content type(s) provided: {self.m_content_type}. Must be a subset of {', '.join(VALID_CONTENT_TYPES)}.")
 
         return self
 

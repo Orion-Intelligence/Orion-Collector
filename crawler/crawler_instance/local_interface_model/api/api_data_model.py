@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field, SkipValidation
 from typing import List
+
+from pydantic import BaseModel, Field, SkipValidation
+
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model
 
 

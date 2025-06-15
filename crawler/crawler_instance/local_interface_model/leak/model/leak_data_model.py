@@ -1,9 +1,11 @@
 from typing import List
+
 from pydantic import BaseModel, Field
 
+from crawler.crawler_instance.local_shared_model.data_model.defacement_model import defacement_model
 from crawler.crawler_instance.local_shared_model.data_model.exploit_model import exploit_model
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model
-from crawler.crawler_instance.local_shared_model.data_model.defacement_model import defacement_model
+
 
 class leak_data_model(BaseModel):
     cards_data: List[leak_model | defacement_model | exploit_model] = Field(default_factory=list)

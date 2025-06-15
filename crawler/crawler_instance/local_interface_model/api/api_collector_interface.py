@@ -7,6 +7,7 @@ from crawler.crawler_instance.local_shared_model.data_model.entity_model import 
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model
 from crawler.crawler_instance.local_shared_model.rule_model import RuleModel
 
+
 class api_collector_interface(ABC):
     @property
     @abstractmethod

@@ -37,13 +37,14 @@ class shared_data_controller:
             return self._cache[p_base_url]["result"]
 
         payload = {"title": p_title, "description": p_important_content, "keyword": p_content}
-        result = self._request(RAW_PATH_CONSTANTS.MICROSERVER + "/topic_classifier/predict", method="POST", payload=payload)
+        result = self._request(RAW_PATH_CONSTANTS.MICROSERVER + "/topic_classifier/predict", method="POST",
+                               payload=payload)
         self._cache[p_base_url] = result
         return result["result"]
 
     def trigger_nlp_classifier(self, p_text):
         payload = {"data": p_text}
-        request = self._request(RAW_PATH_CONSTANTS.MICROSERVER+"/nlp/parse", method="POST", payload=payload)
+        request = self._request(RAW_PATH_CONSTANTS.MICROSERVER + "/nlp/parse", method="POST", payload=payload)
         result = request.get("result")
         return result
 

@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import List
+
 from playwright.sync_api import Page
 
 from crawler.crawler_instance.local_interface_model.leak.leak_extractor_interface import leak_extractor_interface
@@ -146,4 +147,3 @@ class _bianlianlbc5an4kgnay3opdemgcryg2kpfcbgczopmm3dnbz3uaunad(leak_extractor_i
 
         except Exception as e:
             print(f"Error parsing leak data: {str(e)}")
-

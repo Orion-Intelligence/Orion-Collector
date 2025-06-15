@@ -1,6 +1,8 @@
-from pydantic import BaseModel, Field, field_validator
 from datetime import date, datetime
 from typing import Optional, List
+
+from pydantic import BaseModel, Field, field_validator
+
 
 class defacement_model(BaseModel):
     m_web_server: List[str]

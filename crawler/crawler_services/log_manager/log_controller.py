@@ -1,10 +1,11 @@
 import datetime
 import inspect
-import stat
-import sys
 import logging
 import os
+import stat
+import sys
 import threading
+
 from crawler.constants.constant import RAW_PATH_CONSTANTS
 
 if sys.platform == "win32":

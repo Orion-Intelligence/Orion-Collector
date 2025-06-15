@@ -1,6 +1,8 @@
 from abc import ABC
 from typing import List
+
 from playwright.sync_api import Page
+
 from crawler.crawler_instance.local_interface_model.leak.leak_extractor_interface import leak_extractor_interface
 from crawler.crawler_instance.local_shared_model.data_model.entity_model import entity_model
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model

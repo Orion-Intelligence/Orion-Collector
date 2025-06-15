@@ -1,7 +1,7 @@
 from datetime import date
+from typing import Optional, List
 
 from pydantic import BaseModel, Field
-from typing import Optional, List
 
 
 class telegram_chat_model(BaseModel):
@@ -31,6 +31,7 @@ class telegram_chat_model(BaseModel):
     m_file_path: Optional[str] = None
     m_channel_name: Optional[str] = None
     m_weblink: Optional[List[str]] = None
+
 
 class ChatDataModel(BaseModel):
     m_chat_data: List[telegram_chat_model] = Field(default_factory=list)

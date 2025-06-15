@@ -2,6 +2,7 @@ import time
 from abc import ABC
 from datetime import datetime
 from typing import List
+
 from playwright.sync_api import Page
 
 from crawler.constants.constant import RAW_PATH_CONSTANTS
@@ -44,7 +45,7 @@ class _leak_lookup(leak_extractor_interface, ABC):
 
     @property
     def rule_config(self) -> RuleModel:
-        return RuleModel(m_fetch_proxy=FetchProxy.NONE, m_fetch_config=FetchConfig.PLAYRIGHT, m_resoource_block =False)
+        return RuleModel(m_fetch_proxy=FetchProxy.NONE, m_fetch_config=FetchConfig.PLAYRIGHT, m_resoource_block=False)
 
     @property
     def card_data(self) -> List[leak_model]:
@@ -111,7 +112,6 @@ class _leak_lookup(leak_extractor_interface, ABC):
                         modal_content_element = page.query_selector("#breachModal .modal-body")
                         start = time.time()
                         while time.time() - start < 5:
-                            m_data = page.query_selector("#breachModal .modal-body").inner_text()
                             if page.query_selector("#breachModal .modal-body").inner_text() != m_prev_content:
                                 break
                             page.wait_for_timeout(200)
@@ -126,14 +126,20 @@ class _leak_lookup(leak_extractor_interface, ABC):
 
                         modal_content_cleaned = "\n".join(modal_content_cleaned)
 
-                        is_crawled = int(self.invoke_db(REDIS_COMMANDS.S_GET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + site_name, 0, RAW_PATH_CONSTANTS.HREF_TIMEOUT))
+                        is_crawled = int(self.invoke_db(REDIS_COMMANDS.S_GET_INT,
+                                                        CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + site_name, 0,
+                                                        RAW_PATH_CONSTANTS.HREF_TIMEOUT))
                         ref_html = None
                         if is_crawled != -1 and is_crawled < 5:
                             ref_html = helper_method.extract_refhtml(site_name)
                             if ref_html:
-                                self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + site_name, -1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
+                                self.invoke_db(REDIS_COMMANDS.S_SET_INT,
+                                               CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + site_name, -1,
+                                               RAW_PATH_CONSTANTS.HREF_TIMEOUT)
                             else:
-                                self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + site_name, is_crawled + 1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
+                                self.invoke_db(REDIS_COMMANDS.S_SET_INT,
+                                               CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + site_name, is_crawled + 1,
+                                               RAW_PATH_CONSTANTS.HREF_TIMEOUT)
 
                         cleaned = " - ".join(
                             line.strip() for line in modal_content_cleaned.strip().splitlines() if line.strip()
@@ -178,4 +184,3 @@ class _leak_lookup(leak_extractor_interface, ABC):
             next_button.click()
             page.wait_for_selector("table tr")
             self.parse_leak_data(page)
-

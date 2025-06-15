@@ -140,14 +140,18 @@ class _ransom(leak_extractor_interface, ABC):
                         break
                     continue
 
-                is_crawled = int(self.invoke_db(REDIS_COMMANDS.S_GET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + website, 0, RAW_PATH_CONSTANTS.HREF_TIMEOUT))
+                is_crawled = int(
+                    self.invoke_db(REDIS_COMMANDS.S_GET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + website, 0,
+                                   RAW_PATH_CONSTANTS.HREF_TIMEOUT))
                 ref_html = None
                 if is_crawled != -1 and is_crawled < 5:
                     ref_html = helper_method.extract_refhtml(website)
                     if ref_html:
-                        self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + website, -1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
+                        self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + website,
+                                       -1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
                     else:
-                        self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + website, is_crawled + 1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
+                        self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + website,
+                                       is_crawled + 1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
 
                 card_data = leak_model(
                     m_ref_html=ref_html,
