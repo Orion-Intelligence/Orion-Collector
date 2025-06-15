@@ -147,7 +147,7 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
                     m_title=title,
                     m_url=page.url,
                     m_base_url=self.base_url,
-                    m_screenshot="",
+                    m_screenshot=helper_method.get_screenshot_base64(page, title, self.base_url),
                     m_content=m_content,
                     m_network=helper_method.get_network_type(self.base_url),
                     m_important_content=m_content,
@@ -157,12 +157,11 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
                     m_revenue=m_revenue,
                     m_leak_date=leak_date,
                     m_content_type=["leaks"],
+
                 )
 
                 entity_data = entity_model(
-                    m_email=helper_method.extract_emails(m_content),
-                    m_phone_numbers=helper_method.extract_phone_numbers(m_content),
-
+                    m_attacker=["bert"],
                     m_company_name=title,
                     m_confidence=["high"],
                 )
