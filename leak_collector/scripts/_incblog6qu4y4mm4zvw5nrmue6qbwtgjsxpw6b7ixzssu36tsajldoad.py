@@ -175,7 +175,7 @@ class _incblog6qu4y4mm4zvw5nrmue6qbwtgjsxpw6b7ixzssu36tsajldoad(leak_extractor_i
                         m_ref_html=ref_html,
                         m_url=page.url,
                         m_base_url=self.base_url,
-                        m_screenshot="",
+                        m_screenshot=helper_method.get_screenshot_base64(page, title, self.base_url),
                         m_content=description,
                         m_network=helper_method.get_network_type(self.base_url),
                         m_important_content=description[:500],

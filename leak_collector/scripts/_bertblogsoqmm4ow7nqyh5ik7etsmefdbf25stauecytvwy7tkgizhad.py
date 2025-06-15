@@ -1,14 +1,11 @@
 from abc import ABC
 from typing import List
 from playwright.sync_api import Page
-
-from crawler.constants.constant import RAW_PATH_CONSTANTS
 from crawler.crawler_instance.local_interface_model.leak.leak_extractor_interface import leak_extractor_interface
 from crawler.crawler_instance.local_shared_model.data_model.entity_model import entity_model
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model
 from crawler.crawler_instance.local_shared_model.rule_model import RuleModel, FetchProxy, FetchConfig
 from crawler.crawler_services.redis_manager.redis_controller import redis_controller
-from crawler.crawler_services.redis_manager.redis_enums import REDIS_COMMANDS, CUSTOM_SCRIPT_REDIS_KEYS
 from crawler.crawler_services.shared.helper_method import helper_method
 
 
@@ -69,12 +66,11 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
         return "http://bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad.onion"
 
     def append_leak_data(self, leak: leak_model, entity: entity_model):
+
         self._card_data.append(leak)
         self._entity_data.append(entity)
         if self.callback:
-            if self.callback():
-                self._card_data.clear()
-                self._entity_data.clear()
+            self.callback()
 
     def parse_leak_data(self, page: Page):
         page.wait_for_load_state("networkidle")
@@ -146,19 +142,9 @@ class _bertblogsoqmm4ow7nqyh5ik7etsmefdbf25stauecytvwy7tkgizhad(leak_extractor_i
                 else:
                     leak_date = None
 
-                is_crawled = int(self.invoke_db(REDIS_COMMANDS.S_GET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + title, 0, RAW_PATH_CONSTANTS.HREF_TIMEOUT))
-                ref_html = None
-                if is_crawled != -1 and is_crawled < 5 and len(weblinks)>0:
-                    ref_html = helper_method.extract_refhtml(weblinks[0])
-                    if ref_html:
-                        self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + title, -1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
-                    else:
-                        self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + title, is_crawled + 1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
-
 
                 card_data = leak_model(
                     m_title=title,
-                    m_ref_html=ref_html,
                     m_url=page.url,
                     m_base_url=self.base_url,
                     m_screenshot=helper_method.get_screenshot_base64(page, title, self.base_url),

@@ -1,6 +1,8 @@
 from abc import ABC
 from typing import List
 from playwright.sync_api import Page
+
+from crawler.constants.constant import RAW_PATH_CONSTANTS
 from crawler.crawler_instance.local_interface_model.leak.leak_extractor_interface import leak_extractor_interface
 from crawler.crawler_instance.local_shared_model.data_model.entity_model import entity_model
 from crawler.crawler_instance.local_shared_model.data_model.leak_model import leak_model
@@ -52,19 +54,19 @@ class _imncrewwfkbjkhr2oylerfm5qtbzfphhmpcfag43xc2kfgvluqtlgoid(leak_extractor_i
     def entity_data(self) -> List[entity_model]:
         return self._entity_data
 
-    def invoke_db(self, command: int, key: CUSTOM_SCRIPT_REDIS_KEYS, default_value):
-
-        return self._redis_instance.invoke_trigger(command, [key.value + self.__class__.__name__, default_value])
+    def invoke_db(self, command: int, key: str, default_value, expiry: int = None):
+        return self._redis_instance.invoke_trigger(command, [key + self.__class__.__name__, default_value, expiry])
 
     def contact_page(self) -> str:
         return "http://imncrewwfkbjkhr2oylerfm5qtbzfphhmpcfag43xc2kfgvluqtlgoid.onion/"
 
     def append_leak_data(self, leak: leak_model, entity: entity_model):
-
         self._card_data.append(leak)
         self._entity_data.append(entity)
         if self.callback:
-            self.callback()
+            if self.callback():
+                self._card_data.clear()
+                self._entity_data.clear()
 
     def parse_leak_data(self, page: Page):
 
@@ -100,11 +102,21 @@ class _imncrewwfkbjkhr2oylerfm5qtbzfphhmpcfag43xc2kfgvluqtlgoid(leak_extractor_i
                 for img_tag in images_div.find_all("img", src=True):
                     image_urls.append(img_tag["src"])
 
+            is_crawled = int(self.invoke_db(REDIS_COMMANDS.S_GET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + title, 0, RAW_PATH_CONSTANTS.HREF_TIMEOUT))
+            ref_html = None
+            if is_crawled != -1 and is_crawled < 5:
+                ref_html = helper_method.extract_refhtml(title)
+                if ref_html:
+                    self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + title, -1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
+                else:
+                    self.invoke_db(REDIS_COMMANDS.S_SET_INT, CUSTOM_SCRIPT_REDIS_KEYS.URL_PARSED.value + title, is_crawled + 1, RAW_PATH_CONSTANTS.HREF_TIMEOUT)
+
             card_data = leak_model(
                 m_title=title,
+                m_ref_html=ref_html,
                 m_url=page.url,
                 m_base_url=self.base_url,
-                m_screenshot="",
+                m_screenshot=helper_method.get_screenshot_base64(page, title, self.base_url),
                 m_content=m_content,
                 m_network=helper_method.get_network_type(self.base_url),
                 m_important_content=important_content,
@@ -115,7 +127,7 @@ class _imncrewwfkbjkhr2oylerfm5qtbzfphhmpcfag43xc2kfgvluqtlgoid(leak_extractor_i
             )
 
             entity_data = entity_model(
-                m_email_addresses=helper_method.extract_emails(m_content),
+                m_attacker=["imn crew"],
                 m_phone_numbers=helper_method.extract_phone_numbers(m_content),
             )
 
